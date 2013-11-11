@@ -1,0 +1,3 @@
+[Thumbnailer Entry]
+Exec=/usr/bin/mobi-thumbnailer %i %o %s
+MimeType=application/x-mobipocket-ebook

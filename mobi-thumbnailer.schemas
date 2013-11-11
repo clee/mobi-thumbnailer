@@ -1,0 +1,27 @@
+<gconfschemafile>
+    <schemalist>
+        <schema>
+            <key>/schemas/desktop/gnome/thumbnailers/application@x-mobipocket-ebook/enable</key>
+            <applyto>/desktop/gnome/thumbnailers/application@x-mobipocket-ebook/enable</applyto>
+            <owner>mobi</owner>
+            <type>bool</type>
+            <default>true</default>
+            <locale name="C">
+                <short></short>
+                <long></long>
+            </locale>
+        </schema>
+
+        <schema>
+            <key>/schemas/desktop/gnome/thumbnailers/application@x-mobipocket-ebook/command</key>
+            <applyto>/desktop/gnome/thumbnailers/application@x-mobipocket-ebook/command</applyto>
+            <owner>mobi-thumb</owner>
+            <type>string</type>
+            <default>/usr/bin/mobi-thumbnailer %i %o %s</default>
+            <locale name="C">
+                <short></short>
+                <long></long>
+            </locale>
+        </schema>
+    </schemalist>
+</gconfschemafile>

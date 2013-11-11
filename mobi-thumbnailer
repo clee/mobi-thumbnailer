@@ -1,0 +1,108 @@
+#!/usr/bin/python
+
+#  This program is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+# Author: Chris Lee (clee@mg8.org)
+# Version: 1.0
+# Name: mobi-thumbnailer
+# Description: An implementation of a cover thumbnailer for mobi files
+# Installation: see README
+
+import sys
+import os
+from PIL import Image
+from struct import unpack
+from StringIO import StringIO
+
+
+def make_long_reader(data):
+    def read_long(addr):
+        return unpack('>L', data[addr:addr+4])[0]
+    return read_long
+
+
+def make_short_reader(data):
+    def read_short(addr):
+        return unpack('>H', data[addr:addr+4])[0]
+    return read_short
+
+
+def grab_exth_cover_offset(exth_data):
+    if len(exth_data) < 24:
+        print "EXTH data is way too short to be valid!"
+        return False
+    l = make_long_reader(exth_data)
+    num_exth_records = l(8)
+    offset = 12
+    while offset < len(exth_data) - 4:
+        record_type = l(offset)
+        if record_type == 201:
+            return l(offset+8)
+        offset += l(offset + 4)
+    return False
+
+def extract_cover(mobidata):
+    l = make_long_reader(mobidata)
+    first_offset = l(0x4E)
+
+    # is there an EXTH header set?
+    if ord(mobidata[first_offset + 0x83]) & 0x40 != 0x40:
+        print "There's no EXTH metadata in this file!"
+        return False
+
+    # let's see if the cover offset (addend, technically) is in here.
+    exth_offset = first_offset + l(first_offset + 0x14) + 16
+    exth_data = mobidata[exth_offset:exth_offset + l(exth_offset + 4)]
+    cover_index_addend = grab_exth_cover_offset(exth_data)
+    if not cover_index_addend:
+        print "Couldn't find a cover record."
+        return False
+
+    first_image_index = l(first_offset + 0x6C)
+    cover_record_index = first_image_index + cover_index_addend
+    cover_record_index_start = 0x4E + (cover_record_index * 8)
+    cover_record = mobidata[l(cover_record_index_start):l(cover_record_index_start + 8)]
+    return cover_record
+
+
+def save_thumbnail(image_data):
+    if image_data:
+        im = Image.open(StringIO(image_data))
+        im.thumbnail((size, size), Image.ANTIALIAS)
+        im.save(output_file, "PNG")
+        return True
+    return False
+
+
+# Which file are we working with?
+input_file = sys.argv[1]
+
+# Where do does the file have to be saved?
+output_file = sys.argv[2]
+
+# Required size?
+size = int(sys.argv[3])
+
+with file(input_file) as f:
+    mobi = f.read()
+
+try:
+    image_data = extract_cover(mobi)
+    if save_thumbnail(image_data):
+        exit(0)
+except Exception as ex:
+    print "Error getting cover:", ex
+
+exit(1)
+
