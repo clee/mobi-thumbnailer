@@ -32,9 +32,6 @@ Restart nautilus
 
     nautilus -q && nautilus
 
-# More info
-See http://marianosimone.com.ar/mobi-thumbnailer
-
 # Acknowledgments
 - [Marcelo Lira](https://github.com/setanta): Created epub-thumbnailer, which I based this on
 - [Renato Ramonda](https://github.com/renatoram): Added gnome3 thumbnailer support
