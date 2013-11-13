@@ -1,3 +1,6 @@
+# Oops
+You probably want https://git.gnome.org/browse/gnome-epub-thumbnailer instead; it does mobi files, too! Of course, I discovered that this existed a couple of hours after I wrote this one.
+
 # What?
 mobi-thumbnailer is a simple script that tries to find a cover into a Mobipocket ebook file and creates a thumbnail for it.
 
